@@ -1,0 +1,68 @@
+.container {
+  top: 50%;
+  margin-top: 10%;
+}
+.card {
+  position: relative;
+  height: 175px;
+  color: white;
+
+}
+
+.card-user {
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.card-category {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+.card-description {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+.card.img{
+  border-radius: 50%;
+}
+
+.buttons{
+  margin: 0 auto;
+}
+
+#catalog
+{
+  background: linear-gradient(-225deg, rgba(30,30,30,0.6) 30%, rgba(46,46,46,0.5) 80%),
+  url("https://i.pinimg.com/originals/a5/c8/61/a5c8610c01164b72e4126d041303f821.jpg");
+  background-size: cover;
+}
+
+#order
+{
+  background: linear-gradient(-225deg, rgba(30,30,30,0.6) 30%, rgba(46,46,46,0.5) 80%),
+  url("https://www.freevector.com/uploads/vector/preview/26140/Waitress_vector_7.jpg");
+  background-size: cover;
+}
+
+#balancesheet
+{
+  background: linear-gradient(-225deg, rgba(30,30,30,0.6) 30%, rgba(46,46,46,0.5) 80%),
+  url("https://www.forafinancial.com/wp-content/uploads/2018/07/Benefits_of_using_balance_sheet.jpg");
+  background-size: cover;
+}
+
+#transaction
+{
+  background: linear-gradient(-225deg, rgba(30,30,30,0.6) 30%, rgba(46,46,46,0.5) 80%),
+  url("https://img.etimg.com/thumb/height-480,width-640,msid-64230667,imgsize-28918/mobile-transaction-thinksto.jpg");
+  background-size: cover;
+}
+#stocks
+{
+  background: linear-gradient(-225deg, rgba(30,30,30,0.6) 30%, rgba(46,46,46,0.5) 80%),
+  url("https://www.reviso.com/blog/wp-content/uploads/sites/6/inventory-management-blog-418x315.png");
+  background-size: cover;
+}

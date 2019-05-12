@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Jyoti Metal Works</title>
+    <link rel="stylesheet" type="text/css" href="./css/login.css">
+  </head>
+  <body>
+    <div class="wrapper fadeInDown">
+  <div id="formContent">
+    <!-- Tabs Titles -->
+    <h2 class="active"> Sign In </h2>
+    <!-- <h2 class="inactive underlineHover">Sign Up </h2> -->
+
+    <!-- Icon -->
+    <div class="fadeIn first">
+      <img src="https://i.ibb.co/59SxJ7k/jvm1.jpg" id="icon" alt="Jyoti Metal Works Icon" />
+    </div>
+
+    <!-- Login Form -->
+    <form>
+      <input type="text" id="UserName" class="fadeIn second" name="login" placeholder="Login ID">
+      <input type="text" id="Password" class="fadeIn third" name="password" placeholder="Password">
+      <input type="button" class="fadeIn fourth" value="Log In" id="loginbtn">
+    </form>
+
+    <!-- Remind Passowrd -->
+    <div id="formFooter">
+      <a class="underlineHover" href="#">Forgot Password?</a>
+    </div>
+
+  </div>
+</div>
+
+  </body>
+<script>
+require('./renderer.js')
+</script>
+
+</html>

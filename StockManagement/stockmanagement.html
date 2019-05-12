@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Inventory Management</title>
+    <link rel="stylesheet" type="text/css" href="./stockmanagement.css">
+  </head>
+  <body>
+    <!-- background="https://www.warehouseanywhere.com/resources/inventory-management/warehouse-anywhere-inventory-management-1.jpg?v=1" style=" opacity: 0.2;" -->
+<input type="button" value=&#8592; id="Back">
+    <h1 align="center" style="color :black">Welcome to Stock Management Page</h1>
+    <br>
+    <br>
+    <br>
+    <h2 align="center" style="color :black">Enter the Product Id to Check the Quantity in Inventory</h2>
+    <br>
+    <br>
+    <form align="center">
+      <input type="text" id="productid" class="fadeIn second" name="productid" placeholder="Product ID">
+      <input type="button" class="fadeIn fourth" value="Check Quantity" id="getProductCountbtn">
+    </form>
+    <br>
+    <div id="productavailabilitydetails" align="center">
+      <!-- <h3 style="color :black">Availability Status :</h3>--> Availability Status : <p id="availability" style="color :black"></p>
+      <!-- <h3 style="color :black">Available Quantity : </h3>--> Available Quantity : <p id="availableQty" style="color :black"></p>
+    </div>
+  </body>
+  <script>
+  require('./stockmanagementrenderer.js')
+  </script>
+</html>

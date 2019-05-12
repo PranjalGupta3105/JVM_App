@@ -1,0 +1,23 @@
+/* .button {
+    background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+} */
+#Back {
+  background-color: Transparent;
+  background-repeat:no-repeat;
+  border: none;
+  /* color: white; */
+  padding: 10px 22px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 30px;
+  margin: 4px 2px;
+  cursor: pointer;
+  overflow: hidden;
+  outline:none;
+}

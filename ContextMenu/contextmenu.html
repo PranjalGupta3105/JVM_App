@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Welcome to Jyoti Metal Works</title>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css'>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css'>
+    <link rel="stylesheet" type="text/css" href="./contextmenu.css">
+  </head>
+  <body>
+<!-- Card Design -->
+<div class="container">
+     <div class="row">
+<!-- Catalog -->
+       <div class="col-xs-12 col-sm-4">
+         <div class="card" id="catalog">
+           <span class="card-category">Catalog</span>
+           <div class="card-description">
+             <p>View List of Selected Products</p>
+             <input type="button" value="View Products" id="Catalogbtn" class="buttons">
+           </div>
+         </div>
+       </div>
+  <!-- Catalog End -->
+  <!-- Orders -->
+       <div class="col-xs-12 col-sm-4">
+         <div class="card" id="order">
+           <span class="card-category">Orders</span>
+           <div class="card-description">
+             <p>Place, Show, Update, Cancel Orders</p>
+             <input type="button" value="Order Management" id="OrdrMgtbtn" class="buttons">
+           </div>
+         </div>
+       </div>
+<!-- Orders End -->
+<!-- Transactions -->
+       <div class="col-xs-12 col-sm-4">
+         <div class="card" id="transaction">
+           <span class="card-category">Transations</span>
+           <div class="card-description">
+             <p>Add, Show, Update, Delete Transactions</p>
+             <input type="button" value="Transaction Management" id="TranscMgtbtn" class="buttons">
+           </div>
+         </div>
+       </div>
+<!-- Transactions -->
+</div>
+<br>
+<div class="row">
+
+</div>
+<div class="row">
+<!-- Balance Sheet -->
+  <div class="col-xs-12 col-sm-4">
+    <div class="card" id="balancesheet">
+      <span class="card-category">Balance Sheets</span>
+      <div class="card-description">
+        <p>Create, Show, Update, Delete Balance Sheets</p>
+        <input type="button" value="Balance Sheet Management" id="BalShMgtbtn" class="buttons">
+      </div>
+    </div>
+  </div>
+<!-- Balance Sheet -->
+<!-- Stock Keeping -->
+  <div class="col-xs-12 col-sm-4">
+    <div class="card" id="stocks">
+      <span class="card-category">Stock Keeping</span>
+      <div class="card-description">
+        <p>View Stock for Items</p>
+        <input type="button" value="Stock Management" id="StckMgtbtn" class="buttons">
+      </div>
+    </div>
+  </div>
+<!-- Stock Keeping -->
+
+</div>
+
+</div>
+<!--Cards Design End  -->
+
+  </body>
+  <script>
+  require('./contextmenurenderer.js')
+  </script>
+
+</html>

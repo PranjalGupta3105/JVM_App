@@ -1,0 +1,17 @@
+{
+  "name": "jyotimetalworks",
+  "version": "1.0.0",
+  "description": "Desktop Application for Jyoti Metal Works",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Pranjal Gupta",
+  "license": "ISC",
+  "dependencies": {
+    "bower": "^1.8.8",
+    "electron": "^4.1.4",
+    "jquery": "^3.4.1",
+    "request": "^2.88.0"
+  }
+}
