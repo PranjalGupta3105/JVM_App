@@ -35,7 +35,7 @@ win.on('closed',()=>{
 }
 
 ipc.on('authenticateLogin',function(event,args){
-  console.log("This is my LoginId:- "+args[0]+" and this is the Password:- "+args[1]);
+  console.log("\n"+"This is my LoginId:- "+args[0]+" and this is the Password:- "+args[1]);
   // ------------------------------- Defining Authentication Header -----------------------
   var authenticationHeader = "Basic " + new bufferFrom(args[0] +':'+args[1]).toString("base64");
   // -------------------------------------- Get Token --------------------------------------
@@ -51,9 +51,9 @@ ipc.on('authenticateLogin',function(event,args){
   };
 
   var getToken = http.request(tokenapiOptions,function(res){
-    console.log("Token API Response Status Code",res.statusCode);
+    console.log("\n"+"Token API Response Status Code",res.statusCode);
     res.on('data',function(data){
-      console.log('API Response');
+      console.log("\n"+'API Response');
       process.stdout.write(data);
       if(data != null){
         // Create Browser Window
@@ -80,13 +80,84 @@ ipc.on('authenticateLogin',function(event,args){
 
   getToken.end();
   getToken.on('error',function(e){
-    console.log('Some Error Occured While making a Call to API'+e);
+    console.log("\n"+'Some Error Occured While making a Call to API'+e);
+  });
+
+});
+// ---------------------------------------- Place Order ------------------------------------
+ipc.on('PlaceOrder',function(event,args){
+
+const samplejson = {
+	'OrderID':123456,
+	'ProductsName':['Mutki Jug','Maharaja Jug'],
+	'ProductsCode':[123,123],
+	'OrderPlacementTime':'2018-12-22 01:35:56',
+	'Manager':'Paresh',
+	'ClientName':'Durgesh',
+	'ClientEmail':'gpranjal007@gmail.com',
+	'ClientPhone':'8860187642',
+	'ClientAddress':'xyz',
+	'DeliveryAddress':'Ballam Street',
+	'ExpectedDeliveryDate':'2018-12-26 12:35:56',
+	'Quantity':[10,5]
+};
+
+console.log("\n"+JSON.stringify(samplejson));
+
+  // Define Order Placement API Headers
+  var orderplacementapiOptions = {
+    host: 'localhost',
+    port: 49805,
+    path: '/api/orderplacement',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length' : Buffer.byteLength(JSON.stringify(samplejson))
+    }
+  };
+
+console.log(orderplacementapiOptions);
+
+  var placeorder = http.request(orderplacementapiOptions,function(res){
+    console.log("\n"+"Order Placement API Response Status Code",res.statusCode);
+    res.on('data',function(data){
+      console.log("\n"+'API Response');
+      process.stdout.write(data);
+   //     if(data != null){
+  //       // Create Browser Window
+  //       selectOptionswin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
+  //       // Load contextmenu.html
+  //       selectOptionswin.loadURL(url.format({
+  //       pathname: path.join(__dirname, '/ContextMenu/contextmenu.html'),
+  //       protocol: 'file:',
+  //       slashes: true
+  //       }));
+  //       selectOptionswin.once('ready-to-show', () => { //when the new window is ready, show it up
+  //       selectOptionswin.show()
+  //       })
+  //
+  //       selectOptionswin.on('closed', function() { //set new window to null when we're done
+  //       selectOptionswin = null
+  //       })
+  //
+  //       win.close(); //close the login window(the first window)
+  //
+  //     }
+  //   });
+  // });
+});
+// placeorder.write(JSON.stringify(args));
+});
+
+  placeorder.end();
+  placeorder.on('error',function(e){
+    console.log("\n"+'Some Error Occured While making a Call to API'+e);
   });
 
 });
 // ------------------------------------ Move to Context Menu Page ----------------------------
 ipc.on('gettocontextmenu',function(event,args){
-console.log("Going to Move back to the Context Menu");
+console.log("\n"+"Going to Move back to the Context Menu");
         // Create Browser Window
         selectOptionswin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
         // Load contextmenu.html
@@ -158,7 +229,7 @@ ipc.on('LoadStockManagementPage',function(event,args){
 
 // ------------------------------- Check Whether the Items is in Stock or Not ? -----------------
 ipc.on('checkItemInStock',function(event,args){
-  console.log("Product Id for the Searched Product is :- "+args[0]);
+  console.log("\n"+"Product Id for the Searched Product is :- "+args[0]);
   // -------------------------------------- Get Token --------------------------------------
   var inventoryapiOptions = {
     host: 'localhost',
@@ -169,9 +240,9 @@ ipc.on('checkItemInStock',function(event,args){
   };
 
   var getinventorydetails = http.request(inventoryapiOptions,function(res){
-    console.log("Inventory API Response Status Code",res.statusCode);
+    console.log("\n"+"Inventory API Response Status Code",res.statusCode);
     res.on('data',function(data){
-      console.log('API Response');
+      console.log("\n"+'API Response');
       process.stdout.write(data);
       stockmanagementwin.webContents.send('api response',data);
     });
@@ -179,7 +250,7 @@ ipc.on('checkItemInStock',function(event,args){
 
   getinventorydetails.end();
   getinventorydetails.on('error',function(e){
-    console.log('Some Error Occured While making a Call to API'+e);
+    console.log("\n"+'Some Error Occured While making a Call to API'+e);
   });
 });
 
