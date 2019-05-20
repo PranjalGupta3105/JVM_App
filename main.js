@@ -55,6 +55,7 @@ ipc.on('authenticateLogin',function(event,args){
     res.on('data',function(data){
       console.log("\n"+'API Response');
       process.stdout.write(data);
+      console.log("\n");
       if(data != null){
         // Create Browser Window
         selectOptionswin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
@@ -84,6 +85,40 @@ ipc.on('authenticateLogin',function(event,args){
   });
 
 });
+
+//  ------------------------------ Get List of Registered Products -------------------------
+
+ipc.on('getAllRegisteredProducts',function(event,args){
+
+var getProductsAPIOptions = {
+  host : 'localhost',
+  port : 49805,
+  path : '/api/GetRegisteredProducts',
+  method : 'GET',
+  headers : {}
+};
+
+var getProductsList = http.request(getProductsAPIOptions,function(res){
+  console.log('\n'+'Get Prodcuts List API Status Code',res.statusCode);
+  res.on('data',function(data){
+    console.log("\n"+'API Response');
+    var productsListJSON = JSON.parse(data);
+    // process.stdout.write(productsListJSON);
+    // Print List of All of the Products Available with Us.
+    console.log(productsListJSON);
+    ordermanagementwin.webContents.send('productsListResponse',data);
+    console.log('\n'+'Total No of Registered Products : '+productsListJSON.length);
+  });
+
+});
+
+getProductsList.end();
+getProductsList.on('error',function(e){
+  console.log("\n"+'Some Error Occured While making a Call to API'+e);
+});
+
+});
+
 // ---------------------------------------- Place Order ------------------------------------
 ipc.on('PlaceOrder',function(event,args){
 
@@ -123,32 +158,10 @@ console.log(orderplacementapiOptions);
     res.on('data',function(data){
       console.log("\n"+'API Response');
       process.stdout.write(data);
-   //     if(data != null){
-  //       // Create Browser Window
-  //       selectOptionswin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
-  //       // Load contextmenu.html
-  //       selectOptionswin.loadURL(url.format({
-  //       pathname: path.join(__dirname, '/ContextMenu/contextmenu.html'),
-  //       protocol: 'file:',
-  //       slashes: true
-  //       }));
-  //       selectOptionswin.once('ready-to-show', () => { //when the new window is ready, show it up
-  //       selectOptionswin.show()
-  //       })
-  //
-  //       selectOptionswin.on('closed', function() { //set new window to null when we're done
-  //       selectOptionswin = null
-  //       })
-  //
-  //       win.close(); //close the login window(the first window)
-  //
-  //     }
-  //   });
-  // });
-});
-// placeorder.write(JSON.stringify(args));
 });
 
+});
+  placeorder.write(JSON.stringify(samplejson));
   placeorder.end();
   placeorder.on('error',function(e){
     console.log("\n"+'Some Error Occured While making a Call to API'+e);
