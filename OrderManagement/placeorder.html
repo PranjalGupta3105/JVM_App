@@ -28,13 +28,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/css/tempusdominus-bootstrap-4.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="./placeorder.css">
+    <!-- <script>
+    $(document).ready(function(){
+      $.ajax({
+          url: "/api/GetRegisteredProducts",
+          datatype: "JSON",
+          type: "Get",
+          success: function(data){
+              var productsListJSON = JSON.parse(data);
+              console.log(productsListJSON);
+              for(i=0;i< productsListJSON.length ;i++){
+                console.log(Object.values(productsListJSON[i]));
+                // console.log(productsListJSON[i].value);
+                products.push(Object.values(productsListJSON[i]));
+              }
+              for(var i=0;i<products.length;i++){
+                var optn = new Option(products[i]);
+                $("#products").append(optn);
+              }
+          }
+      });
+    });
+    </script> -->
   </head>
   <body>
     <form class="formlayout">
     <!--Order Id -->
     <div class="form-group">
     <label for="Products Name" >Products Name</label>
-    <select class='form-control' id='products' name='productslist'>
+    <select class='form-control' id='products' name='productslist' multiple>
         <!-- <option value="p1">Product 1</option>
         <option value="p2">Product 2</option>
         <option value="p3">Product 3</option> -->

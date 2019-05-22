@@ -1,20 +1,19 @@
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
 
-const getProductsList = document.getElementById('products');
-getProductsList.addEventListener('click',function(){
+window.onload = function(){
   ipc.send('getAllRegisteredProducts');
+};
 
-});
-
-let products = [];
 ipc.on('productsListResponse',function(event,data){
+    let products = [];
     console.log('\n'+' Products List Returned In Response : '+data);
     var productsListJSON = JSON.parse(data);
      console.log(productsListJSON);
-    for(i=0;i< productsListJSON.length ;i++){
+    for(i=0;i< productsListJSON.length ;i++)
+    {
       console.log(Object.values(productsListJSON[i]));
-      // console.log(productsListJSON[i].value);
+
       products.push(Object.values(productsListJSON[i]));
     }
 
@@ -22,16 +21,8 @@ ipc.on('productsListResponse',function(event,data){
     console.log(products.length);
     var optionsAsString = "";
 
-    for(i = 0; i < products.length; i++) {
-      // if(i%2 != 0)
-      // {
-      //   optionsAsString += "<option value='" + products[i] + "'>" + products[i] + "</option>";
-      //
-      //    // $("#products").append(optionsAsString);
-      //
-      //    $( 'select[name="productslist"]' ).html( '<option>' + products.join( '</option><option>' ) + '</option>' );
-      // // }
-      // console.log(optionsAsString);
+    for(i = 0; i < products.length; i++)
+    {
 
       var $inputProduct = $("select[name='productslist']")
       $inputProduct.html("");
@@ -40,9 +31,9 @@ ipc.on('productsListResponse',function(event,data){
             });
 
     }
-    // getProductsList.innerHTML = optionsAsString;
-});
 
+});
+// -------------------------------------------------------------------------
 
 const PlaceOrderbtn = document.getElementById('PlaceOrderbtn');
 PlaceOrderbtn.addEventListener('click', function(){
