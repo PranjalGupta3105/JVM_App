@@ -263,6 +263,29 @@ console.log("\n"+"Going to Move back to the Context Menu");
 
               });
 
+// ------------------------------------ Load Stock Management Page ----------------------------
+              ipc.on('LoadBalanceSheetManagementPage',function(event,args){
+
+                      // Create Browser Window For Stock Management Page
+                      balancesheetMgtwin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
+                      // Load contextmenu.html
+                      balancesheetMgtwin.loadURL(url.format({
+                      pathname: path.join(__dirname, '/BalanceManagement/balancesoptions.html'),
+                      protocol: 'file:',
+                      slashes: true
+                      }));
+
+                      balancesheetMgtwin.once('ready-to-show', () => { //when the new window is ready, show it up
+                      balancesheetMgtwin.show()
+                      });
+
+                      balancesheetMgtwin.on('closed', function() { //set new window to null when we're done
+                      balancesheetMgtwin = null
+                      });
+
+                      selectOptionswin.close(); //close the selectOptins window(the second window)
+
+                    });
 
 // ------------------------------------ Load Stock Management Page ----------------------------
 ipc.on('LoadStockManagementPage',function(event,args){
@@ -291,7 +314,7 @@ ipc.on('LoadStockManagementPage',function(event,args){
 // ------------------------------- Check Whether the Items is in Stock or Not ? -----------------
 ipc.on('checkItemInStock',function(event,args){
   console.log("\n"+"Product Id for the Searched Product is :- "+args[0]);
-  // -------------------------------------- Get Token --------------------------------------
+
   var inventoryapiOptions = {
     host: 'localhost',
     port: 49805,
@@ -358,7 +381,30 @@ ipc.on('addNewTransaction',function(event,args){
 
 });
 
+// ------------------------------- Create Trial Balance -----------------
+ipc.on('ComputeTrialBalanceSheet',function(event,args){
 
+  var prepareTrialBalanceReportOptions = {
+    host: 'localhost',
+    port: 49805,
+    path: '/api/PrepareTrialBalance',
+    method: 'GET',
+    headers: {}
+  };
+
+  var createTrialBalanceReport = http.request(prepareTrialBalanceReportOptions,function(res){
+    console.log("\n"+"Create Trial Balance API Response Status Code",res.statusCode);
+    res.on('data',function(data){
+      console.log("\n"+'API Response');
+      process.stdout.write(data);
+    });
+  });
+
+  createTrialBalanceReport.end();
+  createTrialBalanceReport.on('error',function(e){
+    console.log("\n"+'Some Error Occured While making a Call to API'+e);
+  });
+});
 
 
 
