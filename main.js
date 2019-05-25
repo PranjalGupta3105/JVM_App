@@ -86,6 +86,30 @@ ipc.on('authenticateLogin',function(event,args){
 
 });
 
+// ------------------------------------ Load Catalog Page ----------------------------
+      ipc.on('ShowCatalogPage',function(event,args){
+
+              // Create Browser Window For Stock Management Page
+              showProductsCatalogwin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
+              // Load contextmenu.html
+              showProductsCatalogwin.loadURL(url.format({
+              pathname: path.join(__dirname, '/ProductsCatalog/showproducts.html'),
+              protocol: 'file:',
+              slashes: true
+              }));
+
+              showProductsCatalogwin.once('ready-to-show', () => { //when the new window is ready, show it up
+              showProductsCatalogwin.show()
+              });
+
+              showProductsCatalogwin.on('closed', function() { //set new window to null when we're done
+              showProductsCatalogwin = null
+              });
+
+              selectOptionswin.close(); //close the selectOptins window(the second window)
+
+            });
+
 //  ------------------------------ Get List of Registered Products -------------------------
 
 ipc.on('getAllRegisteredProducts',function(event,args){
