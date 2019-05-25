@@ -216,6 +216,30 @@ console.log("\n"+"Going to Move back to the Context Menu");
 
             });
 
+// ------------------------------------ Load Transaction Management Page ----------------------------
+            ipc.on('LoadTransactionManagementPage',function(event,args){
+            // Create Browser Window For Transaction Management Page
+            transactionmanagementwin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
+            // Load contextmenu.html
+            transactionmanagementwin.loadURL(url.format({
+              pathname: path.join(__dirname, '/TransactionManagement/AddNewTransaction.html'),
+              protocol: 'file:',
+              slashes: true
+              }));
+
+              transactionmanagementwin.once('ready-to-show', () => { //when the new window is ready, show it up
+              transactionmanagementwin.show()
+              });
+
+              transactionmanagementwin.on('closed', function() { //set new window to null when we're done
+              transactionmanagementwin = null
+              });
+
+              selectOptionswin.close(); //close the selectOptins window(the second window)
+
+              });
+
+
 // ------------------------------------ Load Stock Management Page ----------------------------
 ipc.on('LoadStockManagementPage',function(event,args){
 
@@ -266,6 +290,52 @@ ipc.on('checkItemInStock',function(event,args){
     console.log("\n"+'Some Error Occured While making a Call to API'+e);
   });
 });
+
+// Transaction Management based API Calls --------------------------------------------------------------------------------
+ipc.on('addNewTransaction',function(event,args){
+
+  var transactionJSON = JSON.stringify({
+
+    "TransactionId": parseInt(args[0]),
+    "TransactionDate": args[1],
+    "TransactionAccountNo": parseInt(args[2]),
+    "TransactionType": args[3],
+    "TransactionDescription": args[4],
+    "TransactionAmount": parseFloat(args[5]),
+    "BookEntryDate": args[6]
+  });
+
+  console.log("\n"+" Transaction JSON Passed to the API is : -",transactionJSON);
+  var addnewTransactionOptions = {
+    host : 'localhost',
+    port: 49805,
+    path: '/api/AddNewTransaction',
+    method: 'POST',
+    headers: {
+      'Content-Type':'application/json',
+      'Content-Length' : Buffer.byteLength(transactionJSON)
+    }
+  };
+
+  var addnewTransaction = http.request(addnewTransactionOptions,function(res){
+    console.log("\n"+"Add New Transaction API Response",res.statusCode);
+    res.on('data',function(data){
+      console.log("\n"+"Add New Transaction API Response");
+      process.stdout.write(data);
+    });
+
+  });
+
+  addnewTransaction.write(transactionJSON);
+  addnewTransaction.end();
+  addnewTransaction.on('error',function(e){
+      console.log("\n"+"Some Error Occured in API Call"+e);
+  });
+
+});
+
+
+
 
 
 // Run create Window Function

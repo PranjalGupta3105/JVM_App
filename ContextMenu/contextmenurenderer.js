@@ -7,7 +7,7 @@ StockMgtbtn.addEventListener('click', function(){
     // var password = document.getElementById("Password").value;
     ipc.send('LoadStockManagementPage');
     // AuthenticateUser(loginId,password)
-})
+});
 
 const OrderMgtbtn = document.getElementById('OrdrMgtbtn');
 OrderMgtbtn.addEventListener('click', function(){
@@ -15,4 +15,12 @@ OrderMgtbtn.addEventListener('click', function(){
     // var password = document.getElementById("Password").value;
     ipc.send('LoadOrderManagementPage');
     // AuthenticateUser(loginId,password)
-})
+});
+
+const TransactionMgtbtn = document.getElementById('TranscMgtbtn');
+TransactionMgtbtn.addEventListener('click', function(){
+    // var loginId = document.getElementById("UserName").value;
+    // var password = document.getElementById("Password").value;
+    ipc.send('LoadTransactionManagementPage');
+    // AuthenticateUser(loginId,password)
+});
