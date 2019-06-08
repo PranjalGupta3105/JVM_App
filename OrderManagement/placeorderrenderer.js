@@ -98,7 +98,11 @@ PlaceOrderbtn.addEventListener('click', function(){
       Quantity
     ]);
 
-})
+});
+
+ipc.on('orderCaptureResponse',function(event,data){
+// Not Required right now
+});
 
 // const OrderMgtbtn = document.getElementById('OrdrMgtbtn');
 // OrderMgtbtn.addEventListener('click', function(){
