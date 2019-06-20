@@ -8,7 +8,10 @@ const ipc = electron.ipcMain;
 const request = require('request');
 const bufferFrom = require('buffer-from');
 const net  = electron.net;
+const os = require('os');
+const fs = require('fs');
 var http = require('http');
+
 
 
 // init win - this is Global reference to Windows Object, if we do not create this,
@@ -182,6 +185,70 @@ console.log(orderplacementapiOptions);
     res.on('data',function(data){
       console.log("\n"+'API Response');
       process.stdout.write(data);
+      // var orderresponse = JSON.parse(Buffer.concat(data).toString);
+      var orderresponse = JSON.parse(data);
+      console.log("\n"+"Placed Order Response"+orderresponse);
+      // console.log(orderresponse.isOrderPlacementSuccessful);
+      // console.log(orderresponse.invoiceFileURL);
+
+      var global = this;
+      var updatedFileName="";
+      var updatedInvoiceHTML = "";
+      var updatedfilepath = "";
+      var updatedprintInvoiceButtonHTML = '<div class="printInvoice"><input type="button" class="btn btn-primary" value="Print Invoice" id="PrintInvoicebtn"></div>'
+
+      console.log("\n"+"About to read the file received from server at"+orderresponse.invoiceFileURL);
+
+        function ReadInvoiceHTML(ofileURL,callback)
+        {
+        fs.readFile(ofileURL,'utf-8',function(err,data){
+        if(err) throw err;
+
+        var updatedprintInvoiceButtonHTML = '<div class="printInvoice"><input type="button" class="btn btn-primary" value="Print Invoice" id="PrintInvoicebtn"></div>'
+        this.updatedInvoiceHTML = data.replace('<div class="printInvoice"></div>',updatedprintInvoiceButtonHTML);
+
+        callback(this.updatedInvoiceHTML)
+        });
+        }
+
+        function UpdateInvoiceHTML(ofileURL){
+          var originalFileName = ofileURL.split(".");
+          var filename = originalFileName[0].split("\\")[3];
+
+          console.log("File Name"+filename);
+          this.updatedFileName = filename+"U"+".html";
+          this.updatedfilepath = path.join(__dirname, '/Invoices/'+this.updatedFileName);
+
+          console.log("\n"+"Created the New Name for the File to Distinguish the one received by server and the One Updated by us like this"+"\n"+this.updatedFileName);
+
+          ReadInvoiceHTML(ofileURL,function(data){
+          fs.writeFile(this.updatedfilepath,data,'utf-8',function(err){
+            if(err) throw err;
+            console.log("\n"+data+"\n");
+          });
+          });
+          return this.updatedFileName;
+        }
+
+      // Create Browser Window
+      var finalFileName = UpdateInvoiceHTML(orderresponse.invoiceFileURL);
+      console.log(finalFileName);
+      invoicewin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
+      // Load Invoice.html
+      setTimeout(()=>{
+      invoicewin.loadURL(url.format({
+      pathname: path.join(__dirname, '/Invoices/'+finalFileName),
+      protocol: 'file:',
+      slashes: true
+      }));
+      },1000)
+      // Took Ref : https://github.com/electron/electron/issues/5107
+
+      invoicewin.once('ready-to-show', () => {
+
+      invoicewin.show();
+      });
+
 });
 
 });
@@ -192,6 +259,7 @@ console.log(orderplacementapiOptions);
   });
 
 });
+
 // ------------------------------------ Move to Context Menu Page ----------------------------
 ipc.on('gettocontextmenu',function(event,args){
 console.log("\n"+"Going to Move back to the Context Menu");
