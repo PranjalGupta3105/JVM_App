@@ -10,7 +10,9 @@ const bufferFrom = require('buffer-from');
 const net  = electron.net;
 const os = require('os');
 const fs = require('fs');
+const printer = require('electron-print');
 var http = require('http');
+
 
 
 
@@ -89,6 +91,10 @@ ipc.on('authenticateLogin',function(event,args){
 
 });
 
+ipc.on('print',function(event,args){
+console.log("Inside Main.js for Print Function");
+    //printer.print("Sample");
+});
 // ------------------------------------ Load Catalog Page ----------------------------
       ipc.on('ShowCatalogPage',function(event,args){
 
