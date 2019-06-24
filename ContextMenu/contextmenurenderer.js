@@ -4,7 +4,7 @@ const ipc = electron.ipcRenderer;
 const Catalogbtn = document.getElementById('Catalogbtn');
 Catalogbtn.addEventListener('click', function(){
 
-    ipc.send('ShowCatalogPage');
+    ipc.send('showCatalogPage');
 
 });
 
