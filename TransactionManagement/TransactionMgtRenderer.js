@@ -13,7 +13,7 @@ transactionCaptureBtn.addEventListener('click',function(){
   var transactionAmount = document.getElementById('transactionamount').value;
   var bookEntryDate = document.getElementById('bookentrydate').value;
 
-  console.log(transactionJSON);
+  console.log("Inside Transaction Renderer");
 
   ipc.send('addNewTransaction',[transactionId,transactionDate,transactionAccno,transactionType,transactionDescription,transactionAmount,bookEntryDate]);
 
