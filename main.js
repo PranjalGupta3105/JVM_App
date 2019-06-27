@@ -12,6 +12,7 @@ const os = require('os');
 const fs = require('fs');
 const printer = require('electron-print');
 const browserwindowgeneratormodule = require('./BrowserWindowGenerator.js');
+const apicallermodule = require('./apiCallers.js')
 var http = require('http');
 
 
@@ -53,71 +54,111 @@ ipc.on('authenticateLogin',function(event,args){
   // ------------------------------- Defining Authentication Header -----------------------
   var authenticationHeader = "Basic " + new bufferFrom(args[0] +':'+args[1]).toString("base64");
 
-  // -------------------------------------- Initializing Options for Token API --------------------------------------
-  var tokenapiOptions = {
-    host: 'localhost',
-    port: 49805,
-    path: '/Token',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization' : authenticationHeader
-    }
-  };
+  var apiheader =
+  {
+        'Content-Type': 'application/json',
+        'Authorization' : authenticationHeader
+  }
 
-// POST request to the Token API
-  var getToken = http.request(tokenapiOptions,function(res){
+  console.log(apiheader);
 
-      console.log("\n"+"Token API Response Status Code",res.statusCode);
-      res.on('data',function(data){
-      console.log("\n"+"Token"+"\n");
-      process.stdout.write(data);
-      console.log("\n");
-      // If Token API returns the Response
-      if(data != null)
-      {
+  var getToken = apicallermodule.postRequests('localhost',49805,'/Token','POST',apiheader,'Token API')
+  console.log("\n"+"Token Received"+"\n"+getToken);
+  if(getToken != null)
+  {
+            // Create a New Window for the Menu Items Window and then Open it
+            getMenuItemsWindow = browserwindowgeneratormodule.generateNewBrowserWindow
+            (
+              path.join(__dirname, '/ContextMenu/contextmenu.html'),
+              800,
+              600,
+              __dirname+'/img/jug1.jpg',
+              'file:',
+              true
+            );
 
-        // Create a New Window for the Menu Items Window and then Open it
-        getMenuItemsWindow = browserwindowgeneratormodule.generateNewBrowserWindow
-        (
-          path.join(__dirname, '/ContextMenu/contextmenu.html'),
-          800,
-          600,
-          __dirname+'/img/jug1.jpg',
-          'file:',
-          true
-        );
+            //When the Menu Items window is ready, show it up
+            getMenuItemsWindow.once('ready-to-show', () => {
+            getMenuItemsWindow.show()
+            });
 
-        // // Create Browser Window
-        // selectOptionswin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
-        // // Load contextmenu.html
-        // selectOptionswin.loadURL(url.format({
-        // pathname: path.join(__dirname, '/ContextMenu/contextmenu.html'),
-        // protocol: 'file:',
-        // slashes: true
-        // }));
+            //When the Menu Items window is closed, close it up
+            getMenuItemsWindow.on('closed', function() {
+            getMenuItemsWindow = null
+            });
 
-        //When the Menu Items window is ready, show it up
-        getMenuItemsWindow.once('ready-to-show', () => {
-        getMenuItemsWindow.show()
-        })
+            //Close the login window once the Menu Items Window is Opened
+            loginWindow.close();
 
-        //When the Menu Items window is closed, close it up
-        getMenuItemsWindow.on('closed', function() {
-        getMenuItemsWindow = null
-        })
-
-        //Close the login window once the Menu Items Window is Opened
-        loginWindow.close();
-
-      }
-    });
-  });
-  // Complete the API Call to get the Token
-  getToken.end();
-  getToken.on('error',function(e){
-    console.log("\n"+'Some Error Occured While making a Call to API'+e);
-  });
+  }
+//   // ------------------------------- Defining Authentication Header -----------------------
+//   var authenticationHeader = "Basic " + new bufferFrom(args[0] +':'+args[1]).toString("base64");
+//
+//   // -------------------------------------- Initializing Options for Token API --------------------------------------
+//   var tokenapiOptions = {
+//     host: 'localhost',
+//     port: 49805,
+//     path: '/Token',
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'Authorization' : authenticationHeader
+//     }
+//   };
+//
+// // POST request to the Token API
+//   var getToken = http.request(tokenapiOptions,function(res){
+//
+//       console.log("\n"+"Token API Response Status Code",res.statusCode);
+//       res.on('data',function(data){
+//       console.log("\n"+"Token"+"\n");
+//       process.stdout.write(data);
+//       console.log("\n");
+//       // If Token API returns the Response
+//       if(data != null)
+//       {
+//
+//         // Create a New Window for the Menu Items Window and then Open it
+//         getMenuItemsWindow = browserwindowgeneratormodule.generateNewBrowserWindow
+//         (
+//           path.join(__dirname, '/ContextMenu/contextmenu.html'),
+//           800,
+//           600,
+//           __dirname+'/img/jug1.jpg',
+//           'file:',
+//           true
+//         );
+//
+//         // // Create Browser Window
+//         // selectOptionswin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
+//         // // Load contextmenu.html
+//         // selectOptionswin.loadURL(url.format({
+//         // pathname: path.join(__dirname, '/ContextMenu/contextmenu.html'),
+//         // protocol: 'file:',
+//         // slashes: true
+//         // }));
+//
+//         //When the Menu Items window is ready, show it up
+//         getMenuItemsWindow.once('ready-to-show', () => {
+//         getMenuItemsWindow.show()
+//         })
+//
+//         //When the Menu Items window is closed, close it up
+//         getMenuItemsWindow.on('closed', function() {
+//         getMenuItemsWindow = null
+//         })
+//
+//         //Close the login window once the Menu Items Window is Opened
+//         loginWindow.close();
+//
+//       }
+//     });
+//   });
+//   // Complete the API Call to get the Token
+//   getToken.end();
+//   getToken.on('error',function(e){
+//     console.log("\n"+'Some Error Occured While making a Call to API'+e);
+//   });
 
 });
 
