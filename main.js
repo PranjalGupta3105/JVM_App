@@ -62,35 +62,56 @@ ipc.on('authenticateLogin',function(event,args){
 
   console.log(apiheader);
 
-  var getToken = apicallermodule.postRequests('localhost',49805,'/Token','POST',apiheader,'Token API')
-  console.log("\n"+"Token Received"+"\n"+getToken);
-  if(getToken != null)
-  {
-            // Create a New Window for the Menu Items Window and then Open it
-            getMenuItemsWindow = browserwindowgeneratormodule.generateNewBrowserWindow
-            (
-              path.join(__dirname, '/ContextMenu/contextmenu.html'),
-              800,
-              600,
-              __dirname+'/img/jug1.jpg',
-              'file:',
-              true
-            );
+  var getToken;
 
-            //When the Menu Items window is ready, show it up
-            getMenuItemsWindow.once('ready-to-show', () => {
-            getMenuItemsWindow.show()
-            });
+  apicallermodule.postRequests('localhost',49805,'/Token','POST',apiheader,'Token API',function(getToken){
+    // Print the Token Value
+    console.log("\n"+"Token Value : "+"\n"+Object.values(JSON.parse(getToken)));
+    // Open the Window Only if the Token is Obtained for the User
+    if(Object.values(JSON.parse(getToken)) != null)
+    {
+              // Create a New Window for the Menu Items Window and then Open it
+              getMenuItemsWindow = browserwindowgeneratormodule.generateNewBrowserWindow
+              (
+                path.join(__dirname, '/ContextMenu/contextmenu.html'),
+                800,
+                600,
+                __dirname+'/img/jug1.jpg',
+                'file:',
+                true
+              );
 
-            //When the Menu Items window is closed, close it up
-            getMenuItemsWindow.on('closed', function() {
-            getMenuItemsWindow = null
-            });
+              //When the Menu Items window is ready, show it up
+              getMenuItemsWindow.once('ready-to-show', () => {
+              getMenuItemsWindow.show()
+              });
 
-            //Close the login window once the Menu Items Window is Opened
-            loginWindow.close();
+              //When the Menu Items window is closed, close it up
+              getMenuItemsWindow.on('closed', function() {
+              getMenuItemsWindow = null
+              });
 
-  }
+              //Close the login window once the Menu Items Window is Opened
+              loginWindow.close();
+
+    }
+    //getTokenFromCallback(setcallback)
+    //console.log("\n"+"Token Received"+"\n"+getToken);
+  });
+
+  // function getTokenFromCallback(getToken){
+  //   console.log("Inside Function"+"\n"+getToken);
+  // }
+  //console.log("\n"+"Token Received"+"\n"+getToken);
+  //console.log("Token value = "+getToken);
+
+
+    // Complete the API Call to get the Token
+    //getToken.end();
+    // getToken.on('error',function(e){
+    //   console.log("\n"+'Some Error Occured While making a Call to API'+e);
+    // });
+
 //   // ------------------------------- Defining Authentication Header -----------------------
 //   var authenticationHeader = "Basic " + new bufferFrom(args[0] +':'+args[1]).toString("base64");
 //

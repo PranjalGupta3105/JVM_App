@@ -8,10 +8,11 @@ module.exports.getRequests = function()
 
 };
 
-module.exports.postRequests = function (hostname,portaddress,apipath,apimethod,apiheaders,apiname)
+
+module.exports.postRequests = function (hostname,portaddress,apipath,apimethod,apiheaders,apiname,apifunctioncallback)
 {
 
-  console.log("I am able to Hit method For API call");
+  console.log("\n"+"I am able to Hit method For API call"+"\n");
 
   var apiOptions =
   {
@@ -22,26 +23,22 @@ module.exports.postRequests = function (hostname,portaddress,apipath,apimethod,a
     headers: apiheaders
   };
 
-  console.log("\n"+"API Options"+apiOptions);
+  //console.log("\n"+"API Options"+apiOptions);
 
   var responsedata  = "";
+  
   callback = function(res)
   {
-    console.log("\n"+apiname+"Returned Status Code : "+res.statusCode);
+    console.log("\n"+apiname+" Returned Status Code : "+res.statusCode);
     res.on('data',function(data)
     {
-      // console.log("\n"+"Data as Received from the API"+"\n");
-      // //process.stdout.write(data);
-      // console.log("\n");
-      // return data;
       responsedata += data;
     });
 
     res.on('end', function () {
-    console.log("This is Response Data"+responsedata);
-    // your code here if you want to use the results !
+    setResponseInApiCaller(responsedata)
   });
-}
+ }
     var apirequest = http.request(apiOptions, callback).end();
 
     apirequest.on('error',function(e){
@@ -51,6 +48,9 @@ module.exports.postRequests = function (hostname,portaddress,apipath,apimethod,a
         "\n"+"Following is the Exception Raised"+e);
 
     });
-    console.log("\n"+"-------------------Value Set in Response Data-------------------"+"\n"+apirequest.data);
-  return apirequest.data;
+
+    function setResponseInApiCaller(apiresponse){
+      // Set the Response in the Call Back function defined in the method calling the apiCaller class
+      apifunctioncallback(apiresponse);
+    }
 };
