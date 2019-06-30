@@ -3,13 +3,23 @@
 const http = require('http');
 
 
-module.exports.getRequests = function()
-{
+// module.exports.getRequests = function(hostname,portaddress,apipath,apimethod,apiheaders,apiname,apifunctioncallback)
+// {
+//     console.log("\n"+"I am able to Hit method For API call"+"\n");
+//
+//     var apiOptions =
+//     {
+//       host: hostname,
+//       port: portaddress,
+//       path: apipath,
+//       method: apimethod,
+//       headers: apiheaders
+//     };
+//
+// };
 
-};
 
-
-module.exports.postRequests = function (hostname,portaddress,apipath,apimethod,apiheaders,apiname,apifunctioncallback)
+module.exports.apiRequests = function (hostname,portaddress,apipath,apimethod,apiheaders,apiname,requestbody,apifunctioncallback)
 {
 
   console.log("\n"+"I am able to Hit method For API call"+"\n");
@@ -26,7 +36,7 @@ module.exports.postRequests = function (hostname,portaddress,apipath,apimethod,a
   //console.log("\n"+"API Options"+apiOptions);
 
   var responsedata  = "";
-  
+
   callback = function(res)
   {
     console.log("\n"+apiname+" Returned Status Code : "+res.statusCode);
@@ -39,7 +49,11 @@ module.exports.postRequests = function (hostname,portaddress,apipath,apimethod,a
     setResponseInApiCaller(responsedata)
   });
  }
-    var apirequest = http.request(apiOptions, callback).end();
+    var apirequest = http.request(apiOptions, callback);
+    apirequest.write(JSON.stringify(requestbody.toString()));
+    apirequest.end();
+
+
 
     apirequest.on('error',function(e){
     console.log(

@@ -60,11 +60,11 @@ ipc.on('authenticateLogin',function(event,args){
         'Authorization' : authenticationHeader
   }
 
-  console.log(apiheader);
+  // console.log(apiheader);
 
   var getToken;
 
-  apicallermodule.postRequests('localhost',49805,'/Token','POST',apiheader,'Token API',function(getToken){
+  apicallermodule.apiRequests('localhost',49805,'/Token','POST',apiheader,'Token API',"",function(getToken){
     // Print the Token Value
     console.log("\n"+"Token Value : "+"\n"+Object.values(JSON.parse(getToken)));
     // Open the Window Only if the Token is Obtained for the User
@@ -226,43 +226,58 @@ ipc.on('showCatalogPage',function(event,args){
 //  ------------------------------ Get List of All of the Registered Products to be displayed while taking the Order-------------------------
 ipc.on('getAllRegisteredProducts',function(event,args){
 
-var getProductsAPIOptions = {
-  host : 'localhost',
-  port : 49805,
-  path : '/api/GetRegisteredProducts',
-  method : 'GET',
-  headers : {}
-};
+apicallermodule.apiRequests('localhost',49805,'/api/GetRegisteredProducts','GET',{},'Get All Registered Products API',"",
+function(getProducts){
 
-var getProductsList = http.request(getProductsAPIOptions,function(res){
+  var productsListJSON = JSON.parse(getProducts);
 
-  console.log('\n'+'Get Prodcuts List API Status Code',res.statusCode);
+  // Print List of All of the Products Available with Us.
+  console.log("\n"+"JSON of all of the Products Available"+"\n"+productsListJSON);
 
-  res.on('data',function(data){
+  // Send the Data to the Renderer to display it in the List of Products
+  orderManagementWindow.webContents.send('productsListResponse',getProducts);
 
-    console.log("\n"+'API Response');
-
-    var productsListJSON = JSON.parse(data);
-    // process.stdout.write(productsListJSON);
-
-    // Print List of All of the Products Available with Us.
-    console.log("\n"+"JSON of all of the Products Available"+"\n"+productsListJSON);
-
-    // Send the Data to the Renderer to display it in the List of Products
-    orderManagementWindow.webContents.send('productsListResponse',data);
-
-    console.log("\n"+"Total No of Registered Products : "+productsListJSON.length);
-  });
+  console.log("\n"+"Total No of Registered Products : "+productsListJSON.length);
 
 });
 
-  // Complete the API Call
-  getProductsList.end();
-
-  // Revert with the Error (In case)
-  getProductsList.on('error',function(e){
-    console.log("\n"+"Some Error Occured While making a Call to API"+"\n"+e);
-  });
+// var getProductsAPIOptions = {
+//   host : 'localhost',
+//   port : 49805,
+//   path : '/api/GetRegisteredProducts',
+//   method : 'GET',
+//   headers : {}
+// };
+//
+// var getProductsList = http.request(getProductsAPIOptions,function(res){
+//
+//   console.log('\n'+'Get Prodcuts List API Status Code',res.statusCode);
+//
+//   res.on('data',function(data){
+//
+//     console.log("\n"+'API Response');
+//
+//     var productsListJSON = JSON.parse(data);
+//     // process.stdout.write(productsListJSON);
+//
+//     // Print List of All of the Products Available with Us.
+//     console.log("\n"+"JSON of all of the Products Available"+"\n"+productsListJSON);
+//
+//     // Send the Data to the Renderer to display it in the List of Products
+//     orderManagementWindow.webContents.send('productsListResponse',data);
+//
+//     console.log("\n"+"Total No of Registered Products : "+productsListJSON.length);
+//   });
+//
+// });
+//
+//   // Complete the API Call
+//   getProductsList.end();
+//
+//   // Revert with the Error (In case)
+//   getProductsList.on('error',function(e){
+//     console.log("\n"+"Some Error Occured While making a Call to API"+"\n"+e);
+//   });
 
 });
 
@@ -289,154 +304,262 @@ ipc.on('PlaceOrder',function(event,args){
 // Log the Order JSON
     console.log("\n"+JSON.stringify(samplejson));
 
-// Define Order Placement API Headers
-  var orderplacementapiOptions = {
-    host: 'localhost',
-    port: 49805,
-    path: '/api/orderplacement',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length' : Buffer.byteLength(JSON.stringify(samplejson))
-    }
-    };
+var placeorderheader =
+  {
+    'Content-Type': 'application/json',
+    'Content-Length' : Buffer.byteLength(JSON.stringify(samplejson))
+  };
 
-// console.log(orderplacementapiOptions);
 
-    var placeorder = http.request(orderplacementapiOptions,function(res){
-    // Return the Order Placement Response Status Code
-    console.log("\n"+"Order Placement API Response Status Code",res.statusCode);
-    res.on('data',function(data){
-    console.log("\n"+"API Response"+"\n");
-    process.stdout.write(data);
-      // var orderresponse = JSON.parse(Buffer.concat(data).toString);
+apicallermodule.apiRequests('localhost',49805,'/api/orderplacement','POST',placeorderheader,JSON.stringify(samplejson),
+function(orderplacementResponse){
+  // Order Placement Response JSON i.e. "data", will contain =
+  // 1. If Order Placement Is Successfull or Not and
+  // 2. What is the URL of the File Generated for Invoices for the Order Placed
+  var orderresponse = JSON.parse(orderplacementResponse);
+  console.log("\n"+"Placed Order Response"+orderresponse);
+  // console.log(orderresponse.isOrderPlacementSuccessful);
+  // console.log(orderresponse.invoiceFileURL);
 
-    // Order Placement Response JSON i.e. "data", will contain =
-    // 1. If Order Placement Is Successfull or Not and
-    // 2. What is the URL of the File Generated for Invoices for the Order Placed
-    var orderresponse = JSON.parse(data);
-    console.log("\n"+"Placed Order Response"+orderresponse);
-    // console.log(orderresponse.isOrderPlacementSuccessful);
-    // console.log(orderresponse.invoiceFileURL);
+  // TODO: Perform the below Mentioned steps only when the Order Placement is Successfull
+  var global = this;
+  var updatedFileName="";
+  var updatedInvoiceHTML = "";
+  var updatedFilePath = "";
 
-    // TODO: Perform the below Mentioned steps only when the Order Placement is Successfull
-    var global = this;
-    var updatedFileName="";
-    var updatedInvoiceHTML = "";
-    var updatedFilePath = "";
+  // This HTML Code is used to replace the <div> with the <div> containing Print Button to Print Invoices
+  // var updatedprintInvoiceButtonHTML = '<div class="printInvoice"><input type="button" class="btn btn-primary" value="Print Invoice" id="PrintInvoicebtn"></div>'
+
+  console.log("\n"+"About to read the file received from server at"+orderresponse.invoiceFileURL);
+
+    // Read the Invoice File as Received from the Server at the Location received in the Response of Place Order API
+  function ReadInvoiceHTML(ofileURL,callback)
+  {
+
+  // Read the Invoice HTML file
+  fs.readFile(ofileURL,'utf-8',function(err,data)
+  {
+    if(err) throw err;
 
     // This HTML Code is used to replace the <div> with the <div> containing Print Button to Print Invoices
-    // var updatedprintInvoiceButtonHTML = '<div class="printInvoice"><input type="button" class="btn btn-primary" value="Print Invoice" id="PrintInvoicebtn"></div>'
+    var updatedprintInvoiceButtonHTML = '<div class="printInvoice"><input type="button" class="btn btn-primary" value="Print Invoice" id="PrintInvoicebtn"></div>'
 
-    console.log("\n"+"About to read the file received from server at"+orderresponse.invoiceFileURL);
+    // Replace the existing HTML template of Invoice as created by server with the updated HTML for Print button
+    this.updatedInvoiceHTML = data.replace('<div class="printInvoice"></div>',updatedprintInvoiceButtonHTML);
 
-      // Read the Invoice File as Received from the Server at the Location received in the Response of Place Order API
-    function ReadInvoiceHTML(ofileURL,callback)
+    callback(this.updatedInvoiceHTML)
+    });
+    }
+
+    // Use the data received after replacing the Template and create a New File
+    function UpdateInvoiceHTML(ofileURL)
     {
+      // Step 1- Define a New Name for the File where Invoices will be displayed
+      // Lets First define the New Name for the Updated Invoice Template
+      var originalFileName = ofileURL.split(".");
+      // Fetched FileName Only from Complete Path of the location received from Server
+      var filename = originalFileName[0].split("\\")[3];
 
-    // Read the Invoice HTML file
-    fs.readFile(ofileURL,'utf-8',function(err,data)
-    {
+      console.log("This is the Name of File that was created at the Latest by Server"+filename);
+      // Add "U" in the name of the file
+      this.updatedFileName = filename+"U"+".html";
+      // Define the Path for the Newly created file
+      this.updatedFilePath = path.join(__dirname, '/Invoices/'+this.updatedFileName);
+
+      console.log
+      (
+      "\n"+
+      "Created the New Name for the File to Distinguish the one received by server and the One Updated by us like this"+
+      "\n"+
+      this.updatedFileName
+      );
+
+      // Step 2- Call the ReadInvoiceHTML function to replace the content and return the Updated content
+      ReadInvoiceHTML(ofileURL,function(data){
+      fs.writeFile(this.updatedFilePath,data,'utf-8',function(err){
       if(err) throw err;
-
-      // This HTML Code is used to replace the <div> with the <div> containing Print Button to Print Invoices
-      var updatedprintInvoiceButtonHTML = '<div class="printInvoice"><input type="button" class="btn btn-primary" value="Print Invoice" id="PrintInvoicebtn"></div>'
-
-      // Replace the existing HTML template of Invoice as created by server with the updated HTML for Print button
-      this.updatedInvoiceHTML = data.replace('<div class="printInvoice"></div>',updatedprintInvoiceButtonHTML);
-
-      callback(this.updatedInvoiceHTML)
+      // console.log("\n"+data+"\n");
       });
+      });
+      // Return the New File Name so as to Open it in a Seperate Window
+      return this.updatedFileName;
       }
 
-      // Use the data received after replacing the Template and create a New File
-      function UpdateInvoiceHTML(ofileURL)
-      {
-        // Step 1- Define a New Name for the File where Invoices will be displayed
-        // Lets First define the New Name for the Updated Invoice Template
-        var originalFileName = ofileURL.split(".");
-        // Fetched FileName Only from Complete Path of the location received from Server
-        var filename = originalFileName[0].split("\\")[3];
+    // Create Browser Window
+    var finalFileName = UpdateInvoiceHTML(orderresponse.invoiceFileURL);
+    console.log(finalFileName);
 
-        console.log("This is the Name of File that was created at the Latest by Server"+filename);
-        // Add "U" in the name of the file
-        this.updatedFileName = filename+"U"+".html";
-        // Define the Path for the Newly created file
-        this.updatedFilePath = path.join(__dirname, '/Invoices/'+this.updatedFileName);
+    invoiceWindow = browserwindowgeneratormodule.generateNewBrowserWindow
+                      (
+                        path.join(__dirname, '/Invoices/'+finalFileName),
+                        800,
+                        600,
+                        __dirname+'/img/jug1.jpg',
+                        'file:',
+                        true
+                      );
 
-        console.log
-        (
-        "\n"+
-        "Created the New Name for the File to Distinguish the one received by server and the One Updated by us like this"+
-        "\n"+
-        this.updatedFileName
-        );
+    // Setting Up the Time Out
+    setTimeout(()=>{invoiceWindow},1500);
 
-        // Step 2- Call the ReadInvoiceHTML function to replace the content and return the Updated content
-        ReadInvoiceHTML(ofileURL,function(data){
-        fs.writeFile(this.updatedFilePath,data,'utf-8',function(err){
-        if(err) throw err;
-        // console.log("\n"+data+"\n");
-        });
-        });
-        // Return the New File Name so as to Open it in a Seperate Window
-        return this.updatedFileName;
-        }
+    invoiceWindow.once('ready-to-show',()=>
+    {
+          invoiceWindow.show();
+    });
 
-      // Create Browser Window
-      var finalFileName = UpdateInvoiceHTML(orderresponse.invoiceFileURL);
-      console.log(finalFileName);
-
-      invoiceWindow = browserwindowgeneratormodule.generateNewBrowserWindow
-                        (
-                          path.join(__dirname, '/Invoices/'+finalFileName),
-                          800,
-                          600,
-                          __dirname+'/img/jug1.jpg',
-                          'file:',
-                          true
-                        );
-
-      // Setting Up the Time Out
-      setTimeout(()=>{invoiceWindow},1500);
-
-      invoiceWindow.once('ready-to-show',()=>
-      {
-            invoiceWindow.show();
-      });
-
-      var value="Window Loaded error";
-      console.log("\n"+"Inside Main.js"+value);
-
-      //---------- Please Do Not Remove this code ---------
-      // invoicewin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
-      // // Load Invoice.html
-      // setTimeout(()=>{
-      // invoicewin.loadURL(url.format({
-      // pathname: path.join(__dirname, '/Invoices/'+finalFileName),
-      // protocol: 'file:',
-      // slashes: true
-      // }));
-      // },1000)
-      // // Took Ref : https://github.com/electron/electron/issues/5107
-      //
-      // invoicewin.once('ready-to-show', () => {
-      //
-      // invoicewin.show();
-      // });
-      // -------------Please Do Not Remove this code Untill Here-----------------
+    var value="Window Loaded error";
+    console.log("\n"+"Inside Main.js"+value);
 
 });
 
-});
-  // Provide the Request Body JSON here for Placing the Order
-  placeorder.write(JSON.stringify(samplejson));
-  // Completing the API Call
-  placeorder.end();
-  // In case of any error
-  placeorder.on('error',function(e){
-    console.log("\n"+"Some Error Occured While making a Call to API"+e);
-  });
+// // Define Order Placement API Headers
+//   var orderplacementapiOptions = {
+//     host: 'localhost',
+//     port: 49805,
+//     path: '/api/orderplacement',
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'Content-Length' : Buffer.byteLength(JSON.stringify(samplejson))
+//     }
+//     };
+//
+// // console.log(orderplacementapiOptions);
+//
+//     var placeorder = http.request(orderplacementapiOptions,function(res){
+//     // Return the Order Placement Response Status Code
+//     console.log("\n"+"Order Placement API Response Status Code",res.statusCode);
+//     res.on('data',function(data){
+//     console.log("\n"+"API Response"+"\n");
+//     process.stdout.write(data);
+//       // var orderresponse = JSON.parse(Buffer.concat(data).toString);
+//
+//     // Order Placement Response JSON i.e. "data", will contain =
+//     // 1. If Order Placement Is Successfull or Not and
+//     // 2. What is the URL of the File Generated for Invoices for the Order Placed
+//     var orderresponse = JSON.parse(data);
+//     console.log("\n"+"Placed Order Response"+orderresponse);
+//     // console.log(orderresponse.isOrderPlacementSuccessful);
+//     // console.log(orderresponse.invoiceFileURL);
+//
+//     // TODO: Perform the below Mentioned steps only when the Order Placement is Successfull
+//     var global = this;
+//     var updatedFileName="";
+//     var updatedInvoiceHTML = "";
+//     var updatedFilePath = "";
+//
+//     // This HTML Code is used to replace the <div> with the <div> containing Print Button to Print Invoices
+//     // var updatedprintInvoiceButtonHTML = '<div class="printInvoice"><input type="button" class="btn btn-primary" value="Print Invoice" id="PrintInvoicebtn"></div>'
+//
+//     console.log("\n"+"About to read the file received from server at"+orderresponse.invoiceFileURL);
+//
+//       // Read the Invoice File as Received from the Server at the Location received in the Response of Place Order API
+//     function ReadInvoiceHTML(ofileURL,callback)
+//     {
+//
+//     // Read the Invoice HTML file
+//     fs.readFile(ofileURL,'utf-8',function(err,data)
+//     {
+//       if(err) throw err;
+//
+//       // This HTML Code is used to replace the <div> with the <div> containing Print Button to Print Invoices
+//       var updatedprintInvoiceButtonHTML = '<div class="printInvoice"><input type="button" class="btn btn-primary" value="Print Invoice" id="PrintInvoicebtn"></div>'
+//
+//       // Replace the existing HTML template of Invoice as created by server with the updated HTML for Print button
+//       this.updatedInvoiceHTML = data.replace('<div class="printInvoice"></div>',updatedprintInvoiceButtonHTML);
+//
+//       callback(this.updatedInvoiceHTML)
+//       });
+//       }
+//
+//       // Use the data received after replacing the Template and create a New File
+//       function UpdateInvoiceHTML(ofileURL)
+//       {
+//         // Step 1- Define a New Name for the File where Invoices will be displayed
+//         // Lets First define the New Name for the Updated Invoice Template
+//         var originalFileName = ofileURL.split(".");
+//         // Fetched FileName Only from Complete Path of the location received from Server
+//         var filename = originalFileName[0].split("\\")[3];
+//
+//         console.log("This is the Name of File that was created at the Latest by Server"+filename);
+//         // Add "U" in the name of the file
+//         this.updatedFileName = filename+"U"+".html";
+//         // Define the Path for the Newly created file
+//         this.updatedFilePath = path.join(__dirname, '/Invoices/'+this.updatedFileName);
+//
+//         console.log
+//         (
+//         "\n"+
+//         "Created the New Name for the File to Distinguish the one received by server and the One Updated by us like this"+
+//         "\n"+
+//         this.updatedFileName
+//         );
+//
+//         // Step 2- Call the ReadInvoiceHTML function to replace the content and return the Updated content
+//         ReadInvoiceHTML(ofileURL,function(data){
+//         fs.writeFile(this.updatedFilePath,data,'utf-8',function(err){
+//         if(err) throw err;
+//         // console.log("\n"+data+"\n");
+//         });
+//         });
+//         // Return the New File Name so as to Open it in a Seperate Window
+//         return this.updatedFileName;
+//         }
+//
+//       // Create Browser Window
+//       var finalFileName = UpdateInvoiceHTML(orderresponse.invoiceFileURL);
+//       console.log(finalFileName);
+//
+//       invoiceWindow = browserwindowgeneratormodule.generateNewBrowserWindow
+//                         (
+//                           path.join(__dirname, '/Invoices/'+finalFileName),
+//                           800,
+//                           600,
+//                           __dirname+'/img/jug1.jpg',
+//                           'file:',
+//                           true
+//                         );
+//
+//       // Setting Up the Time Out
+//       setTimeout(()=>{invoiceWindow},1500);
+//
+//       invoiceWindow.once('ready-to-show',()=>
+//       {
+//             invoiceWindow.show();
+//       });
+//
+//       var value="Window Loaded error";
+//       console.log("\n"+"Inside Main.js"+value);
+//
+//       //---------- Please Do Not Remove this code ---------
+//       // invoicewin = new BrowserWindow({width:800, height:600,icon:__dirname+'/img/jug1.jpg'});
+//       // // Load Invoice.html
+//       // setTimeout(()=>{
+//       // invoicewin.loadURL(url.format({
+//       // pathname: path.join(__dirname, '/Invoices/'+finalFileName),
+//       // protocol: 'file:',
+//       // slashes: true
+//       // }));
+//       // },1000)
+//       // // Took Ref : https://github.com/electron/electron/issues/5107
+//       //
+//       // invoicewin.once('ready-to-show', () => {
+//       //
+//       // invoicewin.show();
+//       // });
+//       // -------------Please Do Not Remove this code Untill Here-----------------
+//
+// });
+//
+// });
+  // // Provide the Request Body JSON here for Placing the Order
+  // placeorder.write(JSON.stringify(samplejson));
+  // // Completing the API Call
+  // placeorder.end();
+  // // In case of any error
+  // placeorder.on('error',function(e){
+  //   console.log("\n"+"Some Error Occured While making a Call to API"+e);
+  // });
 
 });
 
